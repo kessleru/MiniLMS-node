@@ -1,76 +1,78 @@
 import { createServer } from "node:http";
-import { Router } from "../router.mjs";
-import { customRequest } from "../custom-request.mjs";
-import { customResponse } from "../custom-response.mjs";
-import path from "node:path";
-import fs from "node:fs/promises";
+import { Router } from "./router.mjs";
+import { customRequest } from "./custom-request.mjs";
+import { customResponse } from "./custom-response.mjs";
+import {
+  criarAula,
+  criarCurso,
+  pegarCursos,
+  pegarCurso,
+  pegarAulas,
+  pegarAula,
+} from "./database.mjs";
 
 const router = new Router();
 
-const produtosDir = "produtos";
+// Cria um curso
+router.post("/curso", (req, res) => {
+  const { slug, nome, descricao } = req.body;
 
-router.post("/produtos", async (req, res) => {
-  const { categoria, slug } = req.body;
-
-  if (!categoria || !slug) {
-    return res.status(400).json("Categoria e slug são obrigatórios.");
+  const curso = criarCurso({ slug, nome, descricao });
+  if (!curso) {
+    return res.status(400).json("Curso não criado.");
   }
-
-  try {
-    // Diretório base absoluto
-    const baseDir = path.resolve(produtosDir);
-
-    // Caminho final absoluto
-    const filePath = path.resolve(baseDir, categoria, `${slug}.json`);
-
-    // Proteção contra Path Traversal
-    if (!filePath.startsWith(baseDir)) {
-      return res.status(400).json("Caminho inválido.");
-    }
-
-    // Cria diretório da categoria se não existir
-    await fs.mkdir(path.resolve(baseDir, categoria), { recursive: true });
-
-    // Cria o arquivo
-    await fs.writeFile(filePath, JSON.stringify(req.body, null, 2));
-
-    res.status(201).json(`${slug} criado com sucesso.`);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json("Erro ao criar produto.");
-  }
+  return res.status(201).json(curso);
 });
 
-router.get("/produtos", async (req, res) => {
-  try {
-    const listaArquivos = await readdir(`./${produtosDir}`, {
-      recursive: true,
-    });
-    const arquivosJson = listaArquivos.filter((item) => item.endsWith(".json"));
-    const promises = arquivosJson.map((caminhoArquivo) =>
-      readFile(`./${produtosDir}/${caminhoArquivo}`, "utf-8"),
-    );
-    const conteudos = await Promise.all(promises);
-    const produtos = conteudos.map(JSON.parse);
-    res.status(200).json(produtos);
-  } catch {
-    res.status(500).json("Erro.");
+// Cria uma aula
+router.post("/aula", (req, res) => {
+  const { cursoSlug, slug, nome } = req.body;
+
+  const aula = criarAula({ cursoSlug, slug, nome });
+  if (!aula) {
+    return res.status(400).json("Aula não criada.");
   }
+  return res.status(201).json(aula);
 });
 
-router.get("/produto", async (req, res) => {
-  const categoria = req.query.get("categoria");
+// Lista todos os cursos
+router.get("/cursos", (req, res) => {
+  const cursos = pegarCursos();
+  if (!cursos) {
+    return res.status(404).json("Não foi possivel listar os cursos.");
+  }
+  return res.status(200).json(cursos);
+});
+
+// Pega um curso por slug
+router.get("/curso", (req, res) => {
   const slug = req.query.get("slug");
-  try {
-    const conteudo = await readFile(
-      `./${produtosDir}/${categoria}/${slug}.json`,
-      "utf-8",
-    );
-    const produto = JSON.parse(conteudo);
-    res.status(200).json(produto);
-  } catch {
-    res.status(404).json("Não encontrado.");
+  const curso = pegarCurso({ slug });
+  if (!curso) {
+    return res.status(400).json("Curso não encontrado.");
   }
+  return res.status(200).json(curso);
+});
+
+// Listas todas as aulas do curso por slug
+router.get("/aulas", (req, res) => {
+  const cursoSlug = req.query.get("curso");
+  const aulas = pegarAulas({ cursoSlug });
+  if (!aulas) {
+    return res.status(400).json("Não foi possivel listar as aulas.");
+  }
+  return res.status(200).json(aulas);
+});
+
+// Pega a aula usando o slug do curso e da aula
+router.get("/aula", (req, res) => {
+  const cursoSlug = req.query.get("curso");
+  const aulaSlug = req.query.get("slug");
+  const aula = pegarAula({ cursoSlug, aulaSlug });
+  if (!aula) {
+    return res.status(400).json("Aula não encontrada.");
+  }
+  return res.status(200).json(aula);
 });
 
 console.log(router.routes);
