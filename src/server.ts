@@ -47,6 +47,7 @@ router.get("/cursos", (req, res) => {
 // Pega um curso por slug
 router.get("/curso", (req, res) => {
   const slug = req.query.get("slug");
+  if (!slug) return res.status(400).json("Parâmetro 'slug' obrigatório.");
   const curso = pegarCurso({ slug });
   if (!curso) {
     return res.status(400).json("Curso não encontrado.");
@@ -57,6 +58,7 @@ router.get("/curso", (req, res) => {
 // Listas todas as aulas do curso por slug
 router.get("/aulas", (req, res) => {
   const cursoSlug = req.query.get("curso");
+  if (!cursoSlug) return res.status(400).json("Parâmetro 'curso' obrigatório.");
   const aulas = pegarAulas({ cursoSlug });
   if (!aulas) {
     return res.status(400).json("Não foi possivel listar as aulas.");
@@ -68,6 +70,7 @@ router.get("/aulas", (req, res) => {
 router.get("/aula", (req, res) => {
   const cursoSlug = req.query.get("curso");
   const aulaSlug = req.query.get("slug");
+  if (!cursoSlug || !aulaSlug) return res.status(400).json("Parâmetros 'curso' e 'slug' obrigatórios.");
   const aula = pegarAula({ cursoSlug, aulaSlug });
   if (!aula) {
     return res.status(400).json("Aula não encontrada.");

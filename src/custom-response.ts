@@ -2,7 +2,7 @@ import type { ServerResponse } from "node:http";
 
 export interface CustomResponse extends ServerResponse {
   status: (statusCode: number) => CustomResponse;
-  json: (value: Record<string, any>) => void;
+  json: (value: unknown) => void;
 }
 
 export function customResponse(response: ServerResponse) {
