@@ -67,7 +67,7 @@ db.exec(/*sql*/ `
     ((SELECT "id" FROM "cursos" WHERE "slug" = 'engenharia-software'), 'code-review', 'Code Review e Boas Práticas');
 `);
 
-export function criarCurso({ slug, nome, descricao }) {
+export function criarCurso({ slug, nome, descricao }: { slug: string; nome: string; descricao: string }) {
   try {
     return db
       .prepare(
@@ -86,7 +86,7 @@ export function criarCurso({ slug, nome, descricao }) {
   }
 }
 
-export function criarAula({ cursoSlug, slug, nome }) {
+export function criarAula({ cursoSlug, slug, nome }: { cursoSlug: string; slug: string; nome: string }) {
   try {
     return db
       .prepare(
@@ -121,7 +121,7 @@ export function pegarCursos() {
   }
 }
 
-export function pegarCurso({ slug }) {
+export function pegarCurso({ slug }: { slug: string }) {
   try {
     return db
       .prepare(
@@ -137,7 +137,7 @@ export function pegarCurso({ slug }) {
   }
 }
 
-export function pegarAulas({ cursoSlug }) {
+export function pegarAulas({ cursoSlug }: { cursoSlug: string }) {
   try {
     return db
       .prepare(
@@ -153,7 +153,7 @@ export function pegarAulas({ cursoSlug }) {
   }
 }
 
-export function pegarAula({ cursoSlug, aulaSlug }) {
+export function pegarAula({ cursoSlug, aulaSlug }: { cursoSlug: string; aulaSlug: string }) {
   try {
     return db
       .prepare(

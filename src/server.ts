@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
-import { Router } from "./router.mjs";
-import { customRequest } from "./custom-request.mjs";
-import { customResponse } from "./custom-response.mjs";
+import { Router } from "./router.js";
+import { customRequest } from "./custom-request.js";
+import { customResponse } from "./custom-response.js";
 import {
   criarAula,
   criarCurso,
@@ -9,7 +9,7 @@ import {
   pegarCurso,
   pegarAulas,
   pegarAula,
-} from "./database.mjs";
+} from "./database.js";
 
 const router = new Router();
 
@@ -75,14 +75,11 @@ router.get("/aula", (req, res) => {
   return res.status(200).json(aula);
 });
 
-console.log(router.routes);
-console.log("------------");
-
 const server = createServer(async (request, response) => {
   const req = await customRequest(request);
   const res = customResponse(response);
 
-  const handler = router.find(req.method, req.pathname);
+  const handler = router.find(req.method || '', req.pathname);
   if (handler) {
     handler(req, res);
   } else {
