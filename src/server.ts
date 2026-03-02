@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
-import { Router } from "./router.js";
-import { customRequest } from "./custom-request.js";
-import { customResponse } from "./custom-response.js";
+import { Router } from "./router.ts";
+import { customRequest } from "./custom-request.ts";
+import { customResponse } from "./custom-response.ts";
 import {
   criarAula,
   criarCurso,
@@ -9,7 +9,7 @@ import {
   pegarCurso,
   pegarAulas,
   pegarAula,
-} from "./database.js";
+} from "./database.ts";
 
 const router = new Router();
 
